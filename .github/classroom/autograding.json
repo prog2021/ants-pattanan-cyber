@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "ok --score",
+      "setup": "",
+      "run": "python3 ok --score --local",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": null
+    }
+  ]
+}
