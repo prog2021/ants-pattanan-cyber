@@ -1,0 +1,25 @@
+# Link of file patterns to NOT commit to Git.
+__pycache__
+*.py[cod]
+build/
+db.sqlite3
+# Virtual env is recreated as needed. Don't commit.
+venv/
+env/
+
+# code coverage
+.coverage
+htmlcov/
+/coverage
+.mypy_cache
+
+# IDE and MacOS files
+.idea/
+*.iml
+.project
+.pydevproject
+.settings
+.vscode/
+.DS_Store
+
+.ok_history
