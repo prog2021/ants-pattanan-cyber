@@ -162,7 +162,7 @@ class HarvesterAnt(Ant):
         gamestate -- The GameState, used to access game state information.
         """
         # BEGIN Problem 1
-        "*** YOUR CODE HERE ***"
+        self.food_cost += 1
         # END Problem 1
 
 
