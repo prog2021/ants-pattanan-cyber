@@ -55,6 +55,7 @@ class Insect:
     """An Insect, the base class of Ant and Bee, has health and a Place."""
 
     damage = 0
+    watersafe = False
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health, place=None):
@@ -150,7 +151,7 @@ class Ant(Insect):
     #     "*** YOUR CODE HERE ***"
     #     if ant.buff() is False:
     #
-        # END Problem EC
+    #     END Problem EC
 
 
 class HarvesterAnt(Ant):
@@ -197,9 +198,9 @@ class ThrowerAnt(Ant):
                 space += 1
                 place = place.entrance
         return None
+        # END Problem 3 and 4
 
         # return bee_selector(self.place.bees)  # REPLACE THIS LINE
-        # END Problem 3 and 4
 
     def throw_at(self, target):
         """Throw a leaf at the TARGET Bee, reducing its health."""
@@ -227,7 +228,7 @@ class ShortThrower(ThrowerAnt):
 
     name = 'Short'
     food_cost = 2
-    min_range = 5
+    max_range = 3
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem 4
     implemented = True  # Change to True to view in the GUI
@@ -236,10 +237,10 @@ class ShortThrower(ThrowerAnt):
 
 class LongThrower(ThrowerAnt):
     """A ThrowerAnt that only throws leaves at Bees at least 5 places away."""
-
+    min_range = 5
     name = 'Long'
     food_cost = 2
-    max_range = 3
+
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem 4
     implemented = True   # Change to True to view in the GUI
@@ -268,20 +269,15 @@ class FireAnt(Ant):
         Make sure to reduce the health of each bee in the current place, and apply
         the additional damage if the fire ant dies.
         """
-        # BEGIN Problem 5
-        # self.armor -= amount
-        # if self.armor <= 0:
-        #     bees_lst = self.place.bees[:]
-        #     for i in bees_lst:
-        #         Insect.reduce_armor(i, self.damage)
-        #     self.place.remove_insect(self)
-        curr_armor = self.armor - amount
-        if curr_armor <= 0:
-            bee_places = self.place.bees[:]
-            for bee in bee_places:
-                bee.reduce_armor(self.damage)
-        Insect.reduce_armor(self, amount)
-    "*** YOUR CODE HERE ***"
+        b = self.place.bees[:]
+        if self.health <= amount:
+            for i in b:
+                i.reduce_health(self.damage+amount)
+        else:
+            for j in b:
+                j.reduce_health(amount)
+        Ant.reduce_health(self,amount)
+
         # END Problem 5
 
 # BEGIN Problem 6
@@ -289,39 +285,51 @@ class FireAnt(Ant):
 # END Problem 6
 class WallAnt(Ant):
     """WallAnt does nothing each turn, but has a large armor value."""
+
     name = 'Wall'
-    damage = 0
     food_cost = 4
     implemented = True
-    armor = 4
-    def __init__(self):
-        Insect.__init__(self, self.armor)
+
+    def __init__(self,health=4):
+        super().__init__(health)
 
 # BEGIN Problem 7
 # The HungryAnt Class
+
 class HungryAnt(Ant):
+    """HungryAnt will take three turns to digest a Bee in its place.
+    While digesting, the HungryAnt can't eat another Bee.
+    """
     name = 'Hungry'
-    time_to_digest = 3
     food_cost = 4
-    armor = 1
-    implemented = True
+    # BEGIN Problem 6B
+    time_to_digest = 3
+    implemented = True   # Change to True to view in the GUI
+    # END Problem 6B
 
     def __init__(self):
-        Ant.__init__(self, self.armor)
+        # BEGIN Problem 6B
         self.digesting = 0
-        self.time_to_digest = HungryAnt.time_to_digest
+        self.health = 1
+        # END Problem 6B
 
     def eat_bee(self, bee):
-        if bee != None:
-            print(bee)
-            bee.reduce_armor(bee.armor)
-            self.digesting = self.time_to_digest
+        # BEGIN Problem 6B
+        bee.health = 0
+        self.place.bees.remove(bee)
+        self.digesting = self.time_to_digest
+        # END Problem 6B
 
     def action(self, colony):
-        if self.digesting > 0:
+        # BEGIN Problem 6B
+        if not self.place.bees:
+            return None
+        elif self.digesting != 0:
             self.digesting -= 1
+            return None
         else:
-            self.eat_bee(random_or_none(self.place.bees))
+            return self.eat_bee(random.choice(self.place.bees))
+        # END Problem 6B
 # END Problem 7
 
 
@@ -387,9 +395,10 @@ class TankAnt(BodyguardAnt):
     container = True
     damage = 1
     implemented = True   # Change to True to view in the GUI
-    def __init__(self,armor=2):
-        self.armor = armor
-        self.ant = None
+    def __init__(self,health=2):
+        super().__init__(health)
+        # self.health = health
+        # self.ant = None
     # END Problem 8
 
     def action(self, colony):
@@ -397,7 +406,7 @@ class TankAnt(BodyguardAnt):
         "*** REPLACE THIS LINE ***"
         bees_lst = self.place.bees[:]
         for x in bees_lst:
-            Insect.reduce_armor(x, self.damage)
+            Insect.reduce_health(x, self.damage)
         if self.ant:
             self.ant.action(colony)
         # END Problem 8
@@ -411,10 +420,11 @@ class Water(Place):
         """Add an Insect to this place. If the insect is not watersafe, reduce
         its health to 0."""
         # BEGIN Problem 10
-        "*** YOUR CODE HERE ***"
+        # "*** YOUR CODE HERE ***"
         Place.add_insect(self, insect)
-        if insect.watersafe == False:
-            insect.reduce_armor(insect.armor)
+        if insect.watersafe is False:
+            insect.reduce_health(insect.health)
+            # insect.health = 0
         # END Problem 10
 
 # BEGIN Problem 11
@@ -475,7 +485,7 @@ class AntRemover(Ant):
 
 class Bee(Insect):
     """A Bee moves from place to place, following exits and stinging ants."""
-
+    watersafe = True
     name = 'Bee'
     damage = 1
     # OVERRIDE CLASS ATTRIBUTES HERE
