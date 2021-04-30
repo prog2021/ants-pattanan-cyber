@@ -380,25 +380,25 @@ class BodyguardAnt(ContainerAnt):
 
 # BEGIN Problem 9
 # The TankAnt class
-# class TankAnt(BodyguardAnt):
-#     """TankAnt provides both offensive and defensive capabilities."""
-#     name = 'Tank'
-#     damage = 1
-#     food_cost = 6
-#     damage = 1
-#     container = True
-#     implemented = True
-#     def __init__(self,health=2):
-#         self.health = health
-#         self.ant = None
-#
-#
-#     def action(self, colony):
-#         b = self.place.bees[:]
-#         for i in b:
-#             i.reduce_health(self.damage)
-#         if self.ant:
-#             self.ant.action(colony)
+class TankAnt(BodyguardAnt):
+    """TankAnt provides both offensive and defensive capabilities."""
+    name = 'Tank'
+    damage = 1
+    food_cost = 6
+    damage = 1
+    container = True
+    implemented = True
+    def __init__(self,health=2):
+        self.health = health
+        self.ant = None
+
+
+    def action(self, colony):
+        b = self.place.bees[:]
+        for i in b:
+            i.reduce_health(self.damage)
+        if self.ant:
+            self.ant.action(colony)
 
 # END Problem 9
 
