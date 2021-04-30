@@ -25,7 +25,9 @@ class Place:
         self.entrance = None  # A Place
         # Phase 1: Add an entrance to the exit
         # BEGIN Problem 2
-        "*** YOUR CODE HERE ***"
+        # "*** YOUR CODE HERE ***"
+        if exit != None:
+            exit.entrance = self
         # END Problem 2
 
     def is_hive(self):
@@ -142,16 +144,18 @@ class Ant(Insect):
             place.ant.remove_ant(self)
         Insect.remove_from(self, place)
 
-    def buff(self):
-        """Double this ants's damage, if it has not already been buffed."""
-        # BEGIN Problem EC
-        "*** YOUR CODE HERE ***"
+    # def buff(self):
+    #     """Double this ants's damage, if it has not already been buffed."""
+    #     # BEGIN Problem EC
+    #     "*** YOUR CODE HERE ***"
+    #     if ant.buff() is False:
+    #
         # END Problem EC
 
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
-
+    food_cost = 2
     name = 'Harvester'
     implemented = True
     # OVERRIDE CLASS ATTRIBUTES HERE
@@ -162,7 +166,7 @@ class HarvesterAnt(Ant):
         gamestate -- The GameState, used to access game state information.
         """
         # BEGIN Problem 1
-        self.food_cost += 1
+        gamestate.food += 1
         # END Problem 1
 
 
@@ -295,6 +299,29 @@ class WallAnt(Ant):
 
 # BEGIN Problem 7
 # The HungryAnt Class
+class HungryAnt(Ant):
+    name = 'Hungry'
+    time_to_digest = 3
+    food_cost = 4
+    armor = 1
+    implemented = True
+
+    def __init__(self):
+        Ant.__init__(self, self.armor)
+        self.digesting = 0
+        self.time_to_digest = HungryAnt.time_to_digest
+
+    def eat_bee(self, bee):
+        if bee != None:
+            print(bee)
+            bee.reduce_armor(bee.armor)
+            self.digesting = self.time_to_digest
+
+    def action(self, colony):
+        if self.digesting > 0:
+            self.digesting -= 1
+        else:
+            self.eat_bee(random_or_none(self.place.bees))
 # END Problem 7
 
 
@@ -331,9 +358,10 @@ class ContainerAnt(Ant):
             # default to normal behavior
             Ant.remove_from(self, place)
 
-    def action(self, gamestate):
+    # def action(self, gamestate):
         # BEGIN Problem 8
         "*** YOUR CODE HERE ***"
+
         # END Problem 8
 
 
@@ -349,6 +377,30 @@ class BodyguardAnt(ContainerAnt):
 
 # BEGIN Problem 9
 # The TankAnt class
+class TankAnt(BodyguardAnt):
+    """TankAnt provides both offensive and defensive capabilities."""
+    name = 'Tank'
+    damage = 1
+    # BEGIN Problem 8
+    "*** REPLACE THIS LINE ***"
+    food_cost = 6
+    container = True
+    damage = 1
+    implemented = True   # Change to True to view in the GUI
+    def __init__(self,armor=2):
+        self.armor = armor
+        self.ant = None
+    # END Problem 8
+
+    def action(self, colony):
+        # BEGIN Problem 8
+        "*** REPLACE THIS LINE ***"
+        bees_lst = self.place.bees[:]
+        for x in bees_lst:
+            Insect.reduce_armor(x, self.damage)
+        if self.ant:
+            self.ant.action(colony)
+        # END Problem 8
 # END Problem 9
 
 
@@ -360,10 +412,17 @@ class Water(Place):
         its health to 0."""
         # BEGIN Problem 10
         "*** YOUR CODE HERE ***"
+        Place.add_insect(self, insect)
+        if insect.watersafe == False:
+            insect.reduce_armor(insect.armor)
         # END Problem 10
 
 # BEGIN Problem 11
 # The ScubaThrower class
+class ScubaThrower(ThrowerAnt):
+    name = 'Scuba'
+    food_cost = 6
+    watersafe = True
 # END Problem 11
 
 # BEGIN Problem EC
