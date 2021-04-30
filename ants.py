@@ -274,11 +274,11 @@ class FireAnt(Ant):
             for i in b:
                 i.reduce_health(self.damage+amount)
         else:
-            for j in b:
-                j.reduce_health(amount)
+            for i in b:
+                i.reduce_health(amount)
         Ant.reduce_health(self,amount)
 
-        # END Problem 5
+            # END Problem 5
 
 # BEGIN Problem 6
 # The WallAnt class
@@ -292,7 +292,7 @@ class WallAnt(Ant):
 
     def __init__(self,health=4):
         super().__init__(health)
-
+#
 # BEGIN Problem 7
 # The HungryAnt Class
 
@@ -302,35 +302,24 @@ class HungryAnt(Ant):
     """
     name = 'Hungry'
     food_cost = 4
-    # BEGIN Problem 6B
     time_to_digest = 3
     implemented = True   # Change to True to view in the GUI
-    # END Problem 6B
-
+    health = 1
     def __init__(self):
-        # BEGIN Problem 6B
         self.digesting = 0
         self.health = 1
-        # END Problem 6B
 
     def eat_bee(self, bee):
-        # BEGIN Problem 6B
         bee.health = 0
-        self.place.bees.remove(bee)
+        bee.reduce_health(bee.health)
         self.digesting = self.time_to_digest
-        # END Problem 6B
 
     def action(self, colony):
-        # BEGIN Problem 6B
-        if not self.place.bees:
-            return None
-        elif self.digesting != 0:
+        if self.digesting == 0 and not self.place.bees == []:
+            self.eat_bee(self.place.bees[random.randint(0, len(self.place.bees) - 1)])
+            self.digesting = self.time_to_digest
+        elif self.digesting:
             self.digesting -= 1
-            return None
-        else:
-            return self.eat_bee(random.choice(self.place.bees))
-        # END Problem 6B
-# END Problem 7
 
 
 class ContainerAnt(Ant):
@@ -383,33 +372,34 @@ class BodyguardAnt(ContainerAnt):
     implemented = False   # Change to True to view in the GUI
     # END Problem 8
 
+
+
+
+
+
+
 # BEGIN Problem 9
 # The TankAnt class
-class TankAnt(BodyguardAnt):
-    """TankAnt provides both offensive and defensive capabilities."""
-    name = 'Tank'
-    damage = 1
-    # BEGIN Problem 8
-    "*** REPLACE THIS LINE ***"
-    food_cost = 6
-    container = True
-    damage = 1
-    implemented = True   # Change to True to view in the GUI
-    def __init__(self,health=2):
-        super().__init__(health)
-        # self.health = health
-        # self.ant = None
-    # END Problem 8
+# class TankAnt(BodyguardAnt):
+#     """TankAnt provides both offensive and defensive capabilities."""
+#     name = 'Tank'
+#     damage = 1
+#     food_cost = 6
+#     damage = 1
+#     container = True
+#     implemented = True
+#     def __init__(self,health=2):
+#         self.health = health
+#         self.ant = None
+#
+#
+#     def action(self, colony):
+#         b = self.place.bees[:]
+#         for i in b:
+#             i.reduce_health(self.damage)
+#         if self.ant:
+#             self.ant.action(colony)
 
-    def action(self, colony):
-        # BEGIN Problem 8
-        "*** REPLACE THIS LINE ***"
-        bees_lst = self.place.bees[:]
-        for x in bees_lst:
-            Insect.reduce_health(x, self.damage)
-        if self.ant:
-            self.ant.action(colony)
-        # END Problem 8
 # END Problem 9
 
 
@@ -422,8 +412,10 @@ class Water(Place):
         # BEGIN Problem 10
         # "*** YOUR CODE HERE ***"
         Place.add_insect(self, insect)
-        if insect.watersafe is False:
+        if insect.watersafe == False:
             insect.reduce_health(insect.health)
+        else:
+            pass
             # insect.health = 0
         # END Problem 10
 
