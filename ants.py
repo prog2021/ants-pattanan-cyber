@@ -265,12 +265,33 @@ class FireAnt(Ant):
         the additional damage if the fire ant dies.
         """
         # BEGIN Problem 5
-        "*** YOUR CODE HERE ***"
+        # self.armor -= amount
+        # if self.armor <= 0:
+        #     bees_lst = self.place.bees[:]
+        #     for i in bees_lst:
+        #         Insect.reduce_armor(i, self.damage)
+        #     self.place.remove_insect(self)
+        curr_armor = self.armor - amount
+        if curr_armor <= 0:
+            bee_places = self.place.bees[:]
+            for bee in bee_places:
+                bee.reduce_armor(self.damage)
+        Insect.reduce_armor(self, amount)
+    "*** YOUR CODE HERE ***"
         # END Problem 5
 
 # BEGIN Problem 6
 # The WallAnt class
 # END Problem 6
+class WallAnt(Ant):
+    """WallAnt does nothing each turn, but has a large armor value."""
+    name = 'Wall'
+    damage = 0
+    food_cost = 4
+    implemented = True
+    armor = 4
+    def __init__(self):
+        Insect.__init__(self, self.armor)
 
 # BEGIN Problem 7
 # The HungryAnt Class
