@@ -55,7 +55,7 @@ class Insect:
     """An Insect, the base class of Ant and Bee, has health and a Place."""
 
     damage = 0
-    watersafe = False
+    is_watersafe = False
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health, place=None):
@@ -270,7 +270,7 @@ class FireAnt(Ant):
         the additional damage if the fire ant dies.
         """
         b = self.place.bees[:]
-        if self.health <= amount:
+        if self.health - amount <= 0:
             for i in b:
                 i.reduce_health(self.damage+amount)
         else:
@@ -278,7 +278,6 @@ class FireAnt(Ant):
                 i.reduce_health(amount)
         Ant.reduce_health(self,amount)
 
-            # END Problem 5
 
 # BEGIN Problem 6
 # The WallAnt class
@@ -292,7 +291,10 @@ class WallAnt(Ant):
 
     def __init__(self,health=4):
         super().__init__(health)
-#
+
+
+
+
 # BEGIN Problem 7
 # The HungryAnt Class
 
@@ -305,21 +307,22 @@ class HungryAnt(Ant):
     time_to_digest = 3
     implemented = True   # Change to True to view in the GUI
     health = 1
-    def __init__(self):
-        self.digesting = 0
-        self.health = 1
+    chew_duration = 3
 
-    def eat_bee(self, bee):
-        bee.health = 0
-        bee.reduce_health(bee.health)
-        self.digesting = self.time_to_digest
 
-    def action(self, colony):
-        if self.digesting == 0 and not self.place.bees == []:
-            self.eat_bee(self.place.bees[random.randint(0, len(self.place.bees) - 1)])
-            self.digesting = self.time_to_digest
-        elif self.digesting:
-            self.digesting -= 1
+    def __init__(self, health=1):
+        """Create an Ant with a HEALTH quantity."""
+        Ant.__init__(self, health)
+        self.chewing = 0
+
+    def action(self, gamestate):
+        if self.chewing:
+            self.chewing -= 1
+        else:
+            select_bee = bee_selector(self.place.bees)
+            if select_bee != None:
+                select_bee.reduce_health(select_bee.health)
+                self.chewing = self.chew_duration
 
 
 class ContainerAnt(Ant):
@@ -332,16 +335,19 @@ class ContainerAnt(Ant):
 
     def can_contain(self, other):
         # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
+        if self.contained_ant is None and other.is_container() == False:
+            return True
+        else:
+            return False
         # END Problem 8
 
     def contain_ant(self, ant):
         # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
+        self.contained_ant = ant
         # END Problem 8
 
     def remove_ant(self, ant):
-        if self.contained_ant is not ant:
+        if self.contained_ant != ant:
             assert False, "{} does not contain {}".format(self, ant)
         self.contained_ant = None
 
@@ -355,11 +361,39 @@ class ContainerAnt(Ant):
             # default to normal behavior
             Ant.remove_from(self, place)
 
-    # def action(self, gamestate):
+    def action(self, gamestate):
         # BEGIN Problem 8
-        "*** YOUR CODE HERE ***"
-
+        if self.contained_ant != None:
+            self.contained_ant.action(gamestate)
         # END Problem 8
+
+    # def is_container(self):
+    #     return True
+    #
+    # def can_contain(self, other):
+    #     # BEGIN Problem 8
+    #     "*** YOUR CODE HERE ***"
+    #     # END Problem 8
+    #
+    # def contain_ant(self, ant):
+    #     # BEGIN Problem 8
+    #     "*** YOUR CODE HERE ***"
+    #     # END Problem 8
+    #
+    # def remove_ant(self, ant):
+    #     if self.contained_ant is not ant:
+    #         assert False, "{} does not contain {}".format(self, ant)
+    #     self.contained_ant = None
+    #
+    # def remove_from(self, place):
+    #     # Special handling for container ants (this is optional)
+    #     if place.ant is self:
+    #         # Container was removed. Contained ant should remain in the game
+    #         place.ant = place.ant.contained_ant
+    #         Insect.remove_from(self, place)
+    #     else:
+    #         # default to normal behavior
+    #         Ant.remove_from(self, place)
 
 
 class BodyguardAnt(ContainerAnt):
@@ -367,12 +401,25 @@ class BodyguardAnt(ContainerAnt):
 
     name = 'Bodyguard'
     food_cost = 4
-    # OVERRIDE CLASS ATTRIBUTES HERE
-    # BEGIN Problem 8
-    implemented = False   # Change to True to view in the GUI
-    # END Problem 8
+    container = True
+    implemented = True
 
+    def __init__(self):
+        Ant.__init__(self, 2)
+        self.ant = None  # The Ant hidden in this bodyguard
 
+    def contain_ant(self, ant):
+        self.ant = ant
+
+    def reduce_armor(self, amount):
+        place_now = self.place
+        Insect.reduce_health(self, amount)
+        if self.health <= 0 or self.place == None:
+            place_now.add_insect(self.ant)
+
+    def action(self, colony):
+        if self.ant is not None:
+            self.ant.action(colony)
 
 
 
@@ -410,21 +457,19 @@ class Water(Place):
         """Add an Insect to this place. If the insect is not watersafe, reduce
         its health to 0."""
         # BEGIN Problem 10
-        # "*** YOUR CODE HERE ***"
         Place.add_insect(self, insect)
-        if insect.watersafe == False:
+        if insect.is_watersafe is not True:
             insect.reduce_health(insect.health)
-        else:
-            pass
-            # insect.health = 0
         # END Problem 10
+
+
 
 # BEGIN Problem 11
 # The ScubaThrower class
 class ScubaThrower(ThrowerAnt):
     name = 'Scuba'
     food_cost = 6
-    watersafe = True
+    is_watersafe = True
 # END Problem 11
 
 # BEGIN Problem EC
@@ -477,7 +522,7 @@ class AntRemover(Ant):
 
 class Bee(Insect):
     """A Bee moves from place to place, following exits and stinging ants."""
-    watersafe = True
+    is_watersafe = True
     name = 'Bee'
     damage = 1
     # OVERRIDE CLASS ATTRIBUTES HERE
