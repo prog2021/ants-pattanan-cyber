@@ -26,7 +26,7 @@ class Place:
         # Phase 1: Add an entrance to the exit
         # BEGIN Problem 2
         # "*** YOUR CODE HERE ***"
-        if exit != None:
+        if exit is not None:
             exit.entrance = self
         # END Problem 2
 
